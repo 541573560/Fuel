@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Chat bot</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: sans-serif;
+      }
+
+      h1 {
+        text-align: center;
+        padding: 20px;
+        background-color: #0095ff;
+        color: white;
+      }
+
+      #messages {
+        padding: 10px;
+        height: 400px;
+        overflow-y: scroll;
+        background-color: #f5f5f5;
+      }
+
+      #messages div {
+        position: relative;
+        display: block;
+        width: fit-content;
+        padding: 20px;
+        border: 1px solid #999;
+        border-radius: 5px;
+        box-shadow: 2px 2px 8px #ccc;
+        background-color: #fff;
+      }
+
+      #text-input {
+        display: flex;
+        flex-direction: column;
+        padding: 10px;
+        background-color: #f5f5f5;
+      }
+
+      #text-input label {
+        font-weight: bold;
+        margin-bottom: 5px;
+      }
+
+      #text-input input[type="text"] {
+        padding: 5px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+      }
+
+      #text-input button[type="submit"] {
+        padding: 5px 10px;
+        background-color: #0095ff;
+        color: white;
+        border: none;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>AI对话机器人(客户端私聊版)</h1>
+
+    <div id="messages">
+      <div><strong>human:</strong>你是谁?</div>
+      <div><strong>AI:</strong>我是OpenAI创建的AI。我能帮你做些什么。</div>
+    </div>
+    <div id="text-input">
+      <label for="message">消息：</label>
+      <input type="text" id="message" />
+
+      <button type="submit" onclick="getMessages()">发送</button>
+    </div>
+    <script>
+      // 回车事件
+      document.onkeydown = function (e) {
+        var ev = document.all ? window.event : e;
+        if (ev.keyCode == 13) {
+          getMessages();
+        }
+      };
+
+      //添加内容到消息列表
+      function addMessage(username, message) {
+        const messages = document.getElementById("messages");
+        const messageEl = document.createElement("div");
+        messageEl.innerHTML = "<strong>" + username + "</strong>: " + message;
+        messages.appendChild(messageEl);
+      }
+
+      // 发送from表单，添加内容到消息列表
+      const form = document.querySelector("form");
+      function getMessages() {
+        let say = document.querySelector("#message").value;
+
+        if (say == "") {
+          alert("请输入内容");
+          return;
+        }
+        addMessage("human", say);
+        let content = document
+          .querySelector("#messages")
+          .textContent.replaceAll("\n        ", "\n");
+        if (content.length > 800) {
+          content = content.substring(content.length - 400);
+        }
+
+        NetRequest(content);
+        document.querySelector("#message").value = "";
+      }
+
+      // 发送请求给后端，获取消息列表
+      function NetRequest(reqData) {
+        const response = fetch("http://{your ip}:8000/another", {
+          method: "POST", // *GET, POST, PUT, DELETE, etc.
+          mode: "cors", // no-cors, *cors, same-origin
+          cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+          credentials: "same-origin", // include, *same-origin, omit
+          headers: {
+            "Content-Type": "application/json",
+          },
+          redirect: "follow", // manual, *follow, error
+          referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+          body: JSON.stringify({
+            auth: "CjQexL5SGnC4rqVNlWEBdq",
+            conversation: reqData,
+            userInfo: "小蜻蜓",
+          }), // body data type must match "Content-Type" header
+        }).then((response) => response.json());
+
+        response.then((data) =>
+          addMessage(
+            "AI",
+            data.message.replace(/\n/g, "<br>").replace("AI:", "")
+          )
+        );
+      }
+    </script>
+  </body>
+</html>
