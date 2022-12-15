@@ -9,7 +9,7 @@ using `electron` to build this app
 * you should have a [nodejs](https://nodejs.org/en/) environment
 * running [propeller](https://github.com/541573560/propeller)
 * change `index.html`, fill in you server ip
-
+![2](./asset/code.png)
 ## run
 ```
 npm install
