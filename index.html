@@ -62,11 +62,11 @@
     </style>
   </head>
   <body>
-    <h1>AI对话机器人(客户端私聊版)</h1>
+    <h1>要有梦AI对话机器人(客户端私聊版)</h1>
 
     <div id="messages">
       <div><strong>human:</strong>你是谁?</div>
-      <div><strong>AI:</strong>我是OpenAI创建的AI。我能帮你做些什么。</div>
+      <div><strong>AI:</strong>你好！这里是AI机器人小梦，很高兴和你对话！</div>
     </div>
     <div id="text-input">
       <label for="message">消息：</label>
@@ -103,18 +103,18 @@
         addMessage("human", say);
         let content = document
           .querySelector("#messages")
-          .textContent.replaceAll("\n        ", "\n");
-        if (content.length > 800) {
-          content = content.substring(content.length - 400);
+          .textContent.replaceAll("\n      ", "\n");
+        if (content.length > 400) {
+          content = content.slice(-150)
         }
-
+        content  = content + 'AI:'
         NetRequest(content);
         document.querySelector("#message").value = "";
       }
 
       // 发送请求给后端，获取消息列表
       function NetRequest(reqData) {
-        const response = fetch("http://{your ip}:8000/another", {
+        const response = fetch("http://{your ip}/chat", {
           method: "POST", // *GET, POST, PUT, DELETE, etc.
           mode: "cors", // no-cors, *cors, same-origin
           cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
@@ -125,16 +125,15 @@
           redirect: "follow", // manual, *follow, error
           referrerPolicy: "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
           body: JSON.stringify({
-            auth: "CjQexL5SGnC4rqVNlWEBdq",
+            auth: "",
             conversation: reqData,
-            userInfo: "小蜻蜓",
           }), // body data type must match "Content-Type" header
         }).then((response) => response.json());
 
         response.then((data) =>
           addMessage(
             "AI",
-            data.message.replace(/\n/g, "<br>").replace("AI:", "")
+            data.data.choices[0].text.replace(/\n/g, "<br>").replace("AI:", "")
           )
         );
       }
